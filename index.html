@@ -870,6 +870,12 @@
       font-weight: 750;
     }
 
+    .menu-home {
+      margin-bottom: 8px;
+      border: 1px solid rgba(105, 215, 255, 0.22);
+      background: rgba(105, 215, 255, 0.1);
+    }
+
     .menu-app:hover {
       background: rgba(255, 255, 255, 0.08);
     }
@@ -1383,6 +1389,7 @@ available: help, about, skills, project, education, contact, clear</div>
 
     <div class="start-menu" id="startMenu">
       <h3>Start Menu</h3>
+      <button class="menu-app menu-home" id="homeMenu">🏠 Home</button>
       <button class="menu-app" data-app="about">👤 about.exe</button>
       <button class="menu-app" data-app="experience">💼 experience.exe</button>
       <button class="menu-app" data-app="skills">⚡ skills.exe</button>
@@ -1421,6 +1428,7 @@ available: help, about, skills, project, education, contact, clear</div>
     const startButton = document.getElementById("startButton");
     const themeToggle = document.getElementById("themeToggle");
     const mobileAppLabel = document.getElementById("mobileAppLabel");
+    const homeMenu = document.getElementById("homeMenu");
     const startMenu = document.getElementById("startMenu");
     const clock = document.getElementById("clock");
     const windows = [...document.querySelectorAll(".window")];
@@ -1573,6 +1581,20 @@ available: help, about, skills, project, education, contact, clear</div>
       setTimeout(() => element.classList.remove("clicked"), 240);
     }
 
+    function goHome() {
+      windows.forEach((win) => {
+        win.classList.remove("open", "minimized", "maximized");
+      });
+      openedApps.clear();
+      minimizedApps.clear();
+      activeApp = null;
+      renderTaskTabs();
+      updateDesktopIndicators();
+      updateMobileAppLabel();
+      startMenu.classList.remove("open");
+      desktop.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     function cycleApps() {
       const visibleApps = [...openedApps].filter((app) => !minimizedApps.has(app));
       if (!visibleApps.length) return;
@@ -1716,6 +1738,12 @@ available: help, about, skills, project, education, contact, clear</div>
       event.stopPropagation();
       pulseElement(startButton);
       startMenu.classList.toggle("open");
+    });
+
+    homeMenu.addEventListener("click", (event) => {
+      event.stopPropagation();
+      pulseElement(homeMenu);
+      goHome();
     });
 
     themeToggle.addEventListener("click", (event) => {
