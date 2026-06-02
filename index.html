@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rafly OS | Portfolio</title>
+  <style>
+    :root {
+      --desktop: #071426;
+      --desktop-2: #1a1536;
+      --taskbar: rgba(5, 10, 20, 0.78);
+      --titlebar: rgba(8, 16, 30, 0.88);
+      --window: rgba(18, 31, 52, 0.84);
+      --window-solid: #121f34;
+      --line: rgba(255, 255, 255, 0.13);
+      --text: #f5f8ff;
+      --muted: #b7c2d8;
+      --blue: #69d7ff;
+      --purple: #a78bfa;
+      --green: #28c840;
+      --yellow: #febc2e;
+      --red: #ff5f57;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    body.light-theme {
+      --desktop: #eaf2ff;
+      --desktop-2: #d9e6ff;
+      --taskbar: rgba(255, 255, 255, 0.82);
+      --titlebar: rgba(235, 243, 255, 0.92);
+      --window: rgba(255, 255, 255, 0.88);
+      --window-solid: #ffffff;
+      --line: rgba(23, 32, 51, 0.14);
+      --text: #172033;
+      --muted: #556176;
+      --shadow: 0 24px 80px rgba(33, 56, 94, 0.22);
+      background: #edf4ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      font-family: "Segoe UI", Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      color: var(--text);
+      background: #050b14;
+    }
+
+    button,
+    a {
+      font: inherit;
+    }
+
+    a {
+      color: var(--blue);
+      user-select: text;
+    }
+
+    .boot {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(105, 215, 255, 0.2), transparent 28%),
+        linear-gradient(135deg, #050b14, #14102e);
+      transition: opacity 0.55s ease, visibility 0.55s ease;
+    }
+
+    .boot.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .boot-card {
+      width: min(420px, calc(100% - 40px));
+      text-align: center;
+    }
+
+    .boot-logo {
+      width: 78px;
+      height: 78px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(105, 215, 255, 0.42);
+      border-radius: 22px;
+      color: var(--blue);
+      background: rgba(105, 215, 255, 0.09);
+      font-size: 1.8rem;
+      font-weight: 900;
+      box-shadow: 0 0 45px rgba(105, 215, 255, 0.22);
+    }
+
+    .boot-title {
+      margin: 0 0 18px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .progress {
+      height: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      animation: load 2s ease forwards;
+    }
+
+    @keyframes load {
+      to {
+        width: 100%;
+      }
+    }
+
+    .desktop {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(105, 215, 255, 0.22), transparent 26%),
+        radial-gradient(circle at 84% 8%, rgba(167, 139, 250, 0.2), transparent 24%),
+        linear-gradient(135deg, var(--desktop), var(--desktop-2) 62%, #08111f);
+    }
+
+    body.light-theme .desktop {
+      background:
+        radial-gradient(circle at 14% 18%, rgba(105, 215, 255, 0.2), transparent 26%),
+        radial-gradient(circle at 84% 8%, rgba(167, 139, 250, 0.18), transparent 24%),
+        linear-gradient(135deg, var(--desktop), var(--desktop-2) 62%, #f7fbff);
+    }
+
+    .desktop::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.16;
+      background-image:
+        radial-gradient(circle, rgba(255, 255, 255, 0.46) 1px, transparent 1px),
+        linear-gradient(rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.04));
+      background-size: 28px 28px, 100% 100%;
+    }
+
+    .desktop::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image: repeating-linear-gradient(0deg, transparent 0 6px, rgba(255, 255, 255, 0.5) 7px);
+      mix-blend-mode: overlay;
+    }
+
+    .desktop-icons {
+      position: absolute;
+      top: 26px;
+      left: 24px;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(2, 102px);
+      gap: 16px 10px;
+    }
+
+    .desktop-icon {
+      width: 96px;
+      min-height: 90px;
+      display: grid;
+      justify-items: center;
+      align-content: start;
+      gap: 8px;
+      padding: 8px 6px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: white;
+      background: transparent;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .desktop-icon:hover,
+    .desktop-icon:focus-visible,
+    .desktop-icon.running {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .desktop-icon.clicked,
+    .task-tab.clicked,
+    .start.clicked,
+    .menu-app.clicked,
+    .control.clicked,
+    .mobile-back.clicked {
+      animation: clickPulse 0.22s ease;
+    }
+
+    @keyframes clickPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.94); }
+      100% { transform: scale(1); }
+    }
+
+    .desktop-icon.running .icon-art::after {
+      content: "";
+      position: absolute;
+      right: -3px;
+      bottom: -3px;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #071426;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(40, 200, 64, 0.75);
+    }
+
+    .icon-art {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(105, 215, 255, 0.24), rgba(167, 139, 250, 0.2));
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.24);
+      font-size: 1.55rem;
+    }
+
+    .desktop-icon span:last-child {
+      max-width: 94px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.15;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.86);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .welcome-card {
+      position: absolute;
+      right: 34px;
+      top: 34px;
+      z-index: 1;
+      width: min(320px, calc(100vw - 270px));
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(7, 17, 31, 0.42);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .welcome-card h1 {
+      margin: 12px 0 6px;
+      font-size: clamp(1.25rem, 2vw, 1.9rem);
+      line-height: 1.04;
+    }
+
+    .welcome-card p {
+      margin: 0;
+      color: var(--muted);
+      user-select: text;
+    }
+
+    .welcome-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      object-position: center 30%;
+      border: 2px solid rgba(105, 215, 255, 0.6);
+      background: rgba(105, 215, 255, 0.12);
+      box-shadow: 0 12px 34px rgba(105, 215, 255, 0.22);
+    }
+
+    .welcome-subtitle {
+      font-weight: 700;
+    }
+
+    .welcome-info {
+      margin-top: 8px !important;
+      color: #d9e6ff !important;
+      font-size: 0.9rem;
+    }
+
+    .welcome-hint {
+      margin-top: 12px !important;
+      color: rgba(183, 194, 216, 0.72) !important;
+      font-size: 0.78rem;
+    }
+
+    .window {
+      position: absolute;
+      z-index: 10;
+      min-width: 330px;
+      min-height: 230px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: var(--window);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+      transform: scale(0.92);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      resize: both;
+    }
+
+    .window.open {
+      transform: scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .window.minimized {
+      opacity: 0;
+      transform: translateY(70px) scale(0.78);
+      pointer-events: none;
+    }
+
+    .window.maximized {
+      left: 10px !important;
+      top: 10px !important;
+      width: calc(100vw - 20px) !important;
+      height: calc(100vh - 64px) !important;
+      border-radius: 12px;
+      resize: none;
+    }
+
+    .titlebar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--titlebar);
+      cursor: grab;
+    }
+
+    .titlebar:active {
+      cursor: grabbing;
+    }
+
+    .title {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .title span:last-child {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .control {
+      width: 13px;
+      height: 13px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .control:focus-visible,
+    .desktop-icon:focus-visible,
+    .task-tab:focus-visible,
+    .start:focus-visible,
+    .menu-app:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+
+    .close {
+      background: var(--red);
+    }
+
+    .minimize {
+      background: var(--yellow);
+    }
+
+    .maximize {
+      background: var(--green);
+    }
+
+    .window-body {
+      height: calc(100% - 42px);
+      overflow: auto;
+      padding: 24px;
+      user-select: text;
+    }
+
+    .window-body * {
+      user-select: text;
+    }
+
+    .window-body h2 {
+      margin: 0 0 14px;
+      font-size: 1.7rem;
+      line-height: 1.08;
+    }
+
+    .window-body p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+
+    .window-body ul,
+    .window-body ol {
+      margin: 10px 0 0;
+      padding-left: 22px;
+      color: var(--muted);
+    }
+
+    .window-body li {
+      margin: 8px 0;
+    }
+
+    .resize-corner {
+      position: absolute;
+      right: 5px;
+      bottom: 5px;
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+      opacity: 0.55;
+      background:
+        linear-gradient(135deg, transparent 0 50%, rgba(255, 255, 255, 0.55) 50% 56%, transparent 56%),
+        linear-gradient(135deg, transparent 0 66%, rgba(255, 255, 255, 0.4) 66% 72%, transparent 72%);
+    }
+
+    .window.maximized .resize-corner {
+      display: none;
+    }
+
+    .terminal-output {
+      min-height: 180px;
+      margin: 0 0 14px;
+      padding: 16px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: #dff7ff;
+      background: rgba(0, 0, 0, 0.28);
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+    }
+
+    .terminal-form {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid rgba(105, 215, 255, 0.22);
+      border-radius: 10px;
+      background: rgba(105, 215, 255, 0.08);
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .terminal-form span {
+      color: var(--green);
+      font-weight: 800;
+    }
+
+    .terminal-form input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      color: var(--text);
+      background: transparent;
+      font: inherit;
+      user-select: text;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      padding: 10px 12px;
+      border: 1px solid rgba(105, 215, 255, 0.22);
+      border-radius: 999px;
+      color: #eaf8ff;
+      background: rgba(105, 215, 255, 0.1);
+      font-weight: 800;
+    }
+
+    .project-preview {
+      margin: 16px 0;
+      overflow: hidden;
+      border: 1px solid rgba(105, 215, 255, 0.22);
+      border-radius: 12px;
+      background: #eef2f7;
+    }
+
+    .project-preview-top {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      color: #172033;
+      background: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .project-preview-brand {
+      color: #35a84d;
+    }
+
+    .project-preview-nav {
+      color: #172033;
+      font-weight: 700;
+    }
+
+    .project-preview-hero {
+      padding: 22px 16px;
+      text-align: center;
+      color: white;
+      background: linear-gradient(120deg, #171a31, #12375f);
+    }
+
+    .project-preview-hero strong {
+      display: block;
+      font-size: 1.35rem;
+      line-height: 1.18;
+    }
+
+    .project-preview-hero span {
+      color: #49b84f;
+    }
+
+    .project-preview-body {
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .preview-panel {
+      min-height: 104px;
+      padding: 12px;
+      border: 1px solid rgba(23, 32, 51, 0.08);
+      border-radius: 10px;
+      background: white;
+      box-shadow: 0 10px 24px rgba(23, 32, 51, 0.08);
+    }
+
+    .preview-panel h4 {
+      margin: 0 0 8px;
+      color: #172033;
+      font-size: 0.86rem;
+    }
+
+    .preview-field {
+      height: 24px;
+      margin-top: 7px;
+      border: 2px solid #e7e9ee;
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .preview-court {
+      height: 54px;
+      margin-bottom: 9px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #c97835, #f1b36c);
+    }
+
+    .preview-price {
+      color: #35a84d;
+      font-size: 0.82rem;
+      font-weight: 900;
+    }
+
+    .preview-invoice {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .preview-code {
+      padding: 12px;
+      border: 1px dashed #45b856;
+      border-radius: 9px;
+      color: #2c8b3b;
+      background: #e9f8ec;
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+
+    .preview-pay {
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      color: white;
+      background: linear-gradient(135deg, #43ad4d, #28863a);
+      font-weight: 900;
+    }
+
+    .mobile-back {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(105, 215, 255, 0.12);
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .download-cv {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      margin-top: 12px;
+      padding: 0 14px;
+      border: 1px solid rgba(105, 215, 255, 0.34);
+      border-radius: 10px;
+      color: #071426;
+      background: var(--blue);
+      cursor: pointer;
+      font-weight: 900;
+      text-decoration: none;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px 14px;
+      margin-top: 16px;
+      color: var(--muted);
+    }
+
+    .info-grid strong {
+      color: var(--text);
+    }
+
+    .taskbar {
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: 10px;
+      z-index: 500;
+      height: 44px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: var(--taskbar);
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.34);
+      backdrop-filter: blur(18px);
+    }
+
+    .os-brand {
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .avatar {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      color: #071426;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      font-size: 0.78rem;
+    }
+
+    .task-tabs {
+      min-width: 0;
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .task-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .task-tab {
+      height: 32px;
+      max-width: 175px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-icon {
+      flex: 0 0 auto;
+    }
+
+    .task-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-tab.active {
+      border-color: rgba(105, 215, 255, 0.42);
+      background: rgba(105, 215, 255, 0.14);
+    }
+
+    .clock {
+      min-width: 92px;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .start {
+      height: 32px;
+      padding: 0 14px;
+      border: 1px solid rgba(105, 215, 255, 0.28);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(105, 215, 255, 0.11);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .theme-toggle {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .mobile-app-label {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 64px;
+      z-index: 650;
+      max-width: calc(100vw - 32px);
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(5, 10, 20, 0.9);
+      transform: translateX(-50%);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+      font-size: 0.82rem;
+      font-weight: 900;
+      pointer-events: none;
+    }
+
+    .start-menu {
+      position: absolute;
+      right: 12px;
+      bottom: 60px;
+      z-index: 700;
+      width: 260px;
+      display: none;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(9, 18, 33, 0.94);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .start-menu.open {
+      display: block;
+      animation: pop 0.16s ease;
+    }
+
+    @keyframes pop {
+      from {
+        transform: translateY(10px) scale(0.96);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .start-menu h3 {
+      margin: 4px 8px 10px;
+      font-size: 0.98rem;
+    }
+
+    .menu-app {
+      width: 100%;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 10px;
+      color: var(--text);
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      font-weight: 750;
+    }
+
+    .menu-app:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    @media (max-width: 1023px) {
+      .desktop {
+        overflow-y: auto;
+        padding-bottom: 82px;
+      }
+
+      .desktop-icons {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: min(100% - 24px, 430px);
+        margin: 16px auto 0;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .welcome-card {
+        position: relative;
+        right: auto;
+        top: auto;
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 10px;
+        width: min(100% - 24px, 430px);
+        margin: 14px auto 0;
+        padding: 11px;
+        border-radius: 14px;
+      }
+
+      .welcome-card h1 {
+        margin: 0 0 4px;
+        font-size: 1.02rem;
+      }
+
+      .welcome-avatar {
+        grid-row: span 3;
+        width: 44px;
+        height: 44px;
+      }
+
+      .welcome-subtitle,
+      .welcome-info,
+      .welcome-hint {
+        font-size: 0.78rem;
+        line-height: 1.35;
+      }
+
+      .welcome-info {
+        margin-top: 2px !important;
+      }
+
+      .welcome-hint {
+        display: none;
+      }
+
+      .desktop-icon {
+        width: 100%;
+        min-height: 86px;
+        padding: 8px 4px;
+      }
+
+      .icon-art {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 1.35rem;
+      }
+
+      .desktop-icon span:last-child {
+        max-width: 100%;
+        font-size: 11px;
+      }
+
+      .window,
+      .window.maximized {
+        left: 0 !important;
+        top: 0 !important;
+        min-width: 0;
+        width: 100vw !important;
+        height: calc(100vh - 64px) !important;
+        border-radius: 0;
+        resize: none;
+        animation: mobileSlideUp 0.22s ease both;
+      }
+
+      .window.minimized {
+        transform: translateY(100vh) scale(0.98);
+      }
+
+      @keyframes mobileSlideUp {
+        from {
+          transform: translateY(32px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .taskbar {
+        position: fixed;
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        height: 50px;
+        padding: 6px;
+      }
+
+      .clock {
+        display: none;
+      }
+
+      .os-brand span:last-child {
+        display: none;
+      }
+
+      .task-tab {
+        height: 34px;
+        width: 38px;
+        justify-content: center;
+        padding: 0;
+      }
+
+      .task-name {
+        display: none;
+      }
+
+      .start {
+        height: 34px;
+      }
+
+      .start-menu {
+        right: 8px;
+        bottom: 64px;
+        width: min(280px, calc(100vw - 16px));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .desktop-icons {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .project-preview-body {
+        grid-template-columns: 1fr;
+      }
+
+      .window-body {
+        padding: 16px;
+      }
+
+      .titlebar {
+        height: 40px;
+        padding: 0 11px;
+      }
+
+      .mobile-back {
+        display: inline-flex;
+      }
+
+      .title {
+        font-size: 0.82rem;
+      }
+
+      .window-body h2 {
+        font-size: 1.42rem;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .task-tab {
+        max-width: 140px;
+        padding: 0 9px;
+        font-size: 0.82rem;
+      }
+
+      .task-tab.active .task-name {
+        display: none;
+      }
+
+      .mobile-app-label.visible {
+        display: block;
+      }
+
+      .start {
+        padding: 0 10px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .desktop-icons {
+        width: calc(100% - 16px);
+        gap: 8px;
+      }
+
+      .desktop-icon {
+        min-height: 78px;
+      }
+
+      .icon-art {
+        width: 42px;
+        height: 42px;
+      }
+
+      .welcome-card {
+        width: calc(100% - 16px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="boot" id="boot">
+    <div class="boot-card">
+      <div class="boot-logo">RA</div>
+      <p class="boot-title">Rafly OS — Loading...</p>
+      <div class="progress"><span></span></div>
+    </div>
+  </div>
+
+  <div class="desktop" id="desktop">
+    <div class="desktop-icons" id="desktopIcons">
+      <button class="desktop-icon" data-app="about" aria-label="Buka about.exe">
+        <span class="icon-art">👤</span>
+        <span>About</span>
+      </button>
+      <button class="desktop-icon" data-app="experience" aria-label="Buka experience.exe">
+        <span class="icon-art">💼</span>
+        <span>Experience</span>
+      </button>
+      <button class="desktop-icon" data-app="skills" aria-label="Buka skills.exe">
+        <span class="icon-art">⚡</span>
+        <span>Skills</span>
+      </button>
+      <button class="desktop-icon" data-app="project" aria-label="Buka project.exe">
+        <span class="icon-art">🚀</span>
+        <span>Projects</span>
+      </button>
+      <button class="desktop-icon" data-app="education" aria-label="Buka education.exe">
+        <span class="icon-art">🎓</span>
+        <span>Education</span>
+      </button>
+      <button class="desktop-icon" data-app="contact" aria-label="Buka contact.exe">
+        <span class="icon-art">📧</span>
+        <span>Contact</span>
+      </button>
+      <button class="desktop-icon" data-app="terminal" aria-label="Buka terminal.exe">
+        <span class="icon-art">⌨️</span>
+        <span>Terminal</span>
+      </button>
+      <button class="desktop-icon" data-app="cv" aria-label="Buka cv.exe">
+        <span class="icon-art">📄</span>
+        <span>CV</span>
+      </button>
+    </div>
+
+    <section class="welcome-card">
+      <img class="welcome-avatar" src="pas-foto.jpeg" alt="Foto Rafly Arrasyid" />
+      <h1>Rafly Arrasyid</h1>
+      <p class="welcome-subtitle">Sistem Informasi — Universitas Gunadarma</p>
+      <p class="welcome-info">Jakarta Barat · 085774170708</p>
+      <p class="welcome-hint">Double-click ikon aplikasi untuk membuka portfolio interaktif.</p>
+    </section>
+
+    <section class="window" id="window-about" data-app="about" style="left: 245px; top: 96px; width: 610px; height: 470px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>👤</span><span>About Me — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>about.exe</h2>
+        <p>
+          Saya adalah lulusan SMK Negeri 15 Jakarta jurusan Administrasi Perkantoran dan saat ini sedang
+          menempuh pendidikan di Universitas Gunadarma, Program Studi Sistem Informasi. Memiliki dasar yang
+          kuat dalam administrasi perkantoran serta mulai mendalami teknologi informasi.
+        </p>
+        <p>
+          Terampil dalam penggunaan Microsoft Office, pengarsipan dokumen, dan terbiasa bekerja secara
+          terstruktur. Memiliki semangat belajar tinggi, mampu bekerja sama dalam tim, dan siap berkontribusi
+          dalam lingkungan kerja profesional.
+        </p>
+        <div class="info-grid">
+          <strong>Nama</strong><span>Rafly Arrasyid</span>
+          <strong>Studi</strong><span>Sistem Informasi — Universitas Gunadarma</span>
+          <strong>Asal</strong><span>Jakarta Barat</span>
+          <strong>Lahir</strong><span>Jakarta, 23 Juli 2005</span>
+          <strong>Alamat</strong><span>Jl. FF, Kampung Baru, Kebon Jeruk, Sukabumi Selatan, Jakarta Barat</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="window-experience" data-app="experience" style="left: 340px; top: 132px; width: 620px; height: 435px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>💼</span><span>Experience — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>experience.exe</h2>
+        <ol>
+          <li>
+            <strong>Praktik Kerja Lapangan | Mandiri Digital Universe</strong>
+            <ul>
+              <li>Menulis teks naskah untuk konten media digital Spotify.</li>
+              <li>Membuat presentasi hasil kerja mingguan.</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Tugas Sekolah | SMKN 15 Jakarta</strong>
+            <ul>
+              <li>Menjadi Resepsionis.</li>
+              <li>Melayani administrasi dan operasional koperasi sekolah.</li>
+              <li>Melakukan stock opname dan pencatatan inventaris koperasi.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="window" id="window-skills" data-app="skills" style="left: 430px; top: 170px; width: 520px; height: 315px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>⚡</span><span>Skills — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>skills.exe</h2>
+        <p>Kemampuan utama yang mendukung pekerjaan administratif dan pengembangan diri di bidang IT.</p>
+        <div class="pill-row">
+          <span class="pill">Microsoft Office</span>
+          <span class="pill">Teliti</span>
+          <span class="pill">Kerjasama Tim</span>
+          <span class="pill">Manajemen Waktu</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="window-project" data-app="project" style="left: 380px; top: 105px; width: 640px; height: 430px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>🚀</span><span>Project — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>project.exe</h2>
+        <p>
+          <strong>Website Pembookingan Lapangan Padel</strong> adalah project web yang dibuat untuk membantu
+          pengguna melihat informasi lapangan, memilih jadwal, dan melakukan proses booking secara lebih rapi.
+        </p>
+        <p>
+          Project ini menunjukkan minat saya pada Sistem Informasi: menghubungkan kebutuhan operasional,
+          pengelolaan data, dan tampilan yang mudah digunakan.
+        </p>
+        <div class="project-preview" aria-label="Preview website pembookingan lapangan padel">
+          <div class="project-preview-top">
+            <span class="project-preview-brand">🎾 PadelApp</span>
+            <span class="project-preview-nav">Login · Daftar Gratis</span>
+          </div>
+          <div class="project-preview-hero">
+            <strong>Booking Lapangan <span>Padel</span><br />Lebih Mudah & Cepat</strong>
+          </div>
+          <div class="project-preview-body">
+            <div class="preview-panel">
+              <div class="preview-court"></div>
+              <h4>Lapangan B</h4>
+              <div class="preview-price">Rp 150.000/jam</div>
+            </div>
+            <div class="preview-panel">
+              <h4>2. Tentukan Jadwal</h4>
+              <div class="preview-field"></div>
+              <div class="preview-field"></div>
+              <div class="preview-price">Total Rp 277.500</div>
+            </div>
+            <div class="preview-invoice">
+              <div class="preview-code">PDL-AAB32389</div>
+              <div class="preview-pay">Bayar Sekarang</div>
+            </div>
+          </div>
+        </div>
+        <ul>
+          <li>Fokus fitur: informasi lapangan, pemilihan jadwal, dan alur booking.</li>
+          <li>Tujuan: membuat proses reservasi lebih terstruktur dan mudah dipahami pengguna.</li>
+          <li>Nilai portfolio: menunjukkan kemampuan membangun UI, alur sistem, dan kebutuhan operasional.</li>
+        </ul>
+        <div class="pill-row">
+          <span class="pill">HTML</span>
+          <span class="pill">CSS</span>
+          <span class="pill">JavaScript</span>
+          <span class="pill">Booking Flow</span>
+          <span class="pill">Responsive UI</span>
+        </div>
+      </div>
+      <span class="resize-corner" aria-hidden="true"></span>
+    </section>
+
+    <section class="window" id="window-education" data-app="education" style="left: 280px; top: 205px; width: 600px; height: 330px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>🎓</span><span>Education — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>education.exe</h2>
+        <ul>
+          <li><strong>2024–Sekarang</strong> | Universitas Gunadarma | Sistem Informasi</li>
+          <li><strong>2021–2024</strong> | SMK Negeri 15 Jakarta | Administrasi Perkantoran</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="window" id="window-contact" data-app="contact" style="left: 515px; top: 120px; width: 510px; height: 330px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>📧</span><span>Contact — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>contact.exe</h2>
+        <div class="info-grid">
+          <strong>Telepon</strong><span><a href="tel:085774170708">085774170708</a></span>
+          <strong>Email</strong><span><a href="mailto:rasyidrafly88@gmail.com">rasyidrafly88@gmail.com</a></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="window" id="window-terminal" data-app="terminal" style="left: 330px; top: 88px; width: 650px; height: 430px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>⌨️</span><span>Terminal — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>terminal.exe</h2>
+        <div class="terminal-output" id="terminalOutput">Rafly OS Terminal
+Type "help" untuk melihat command.
+
+available: help, about, skills, project, education, contact, clear</div>
+        <form class="terminal-form" id="terminalForm">
+          <span>rafly@os:~$</span>
+          <input id="terminalInput" autocomplete="off" spellcheck="false" aria-label="Terminal command" />
+        </form>
+      </div>
+      <span class="resize-corner" aria-hidden="true"></span>
+    </section>
+
+    <section class="window" id="window-cv" data-app="cv" style="left: 390px; top: 140px; width: 560px; height: 430px;">
+      <div class="titlebar">
+        <button class="mobile-back" data-action="close" aria-label="Kembali">← Back</button>
+        <div class="title"><span>📄</span><span>CV — Rafly OS</span></div>
+        <div class="controls">
+          <button class="control minimize" data-action="minimize" aria-label="Minimize"></button>
+          <button class="control maximize" data-action="maximize" aria-label="Maximize"></button>
+          <button class="control close" data-action="close" aria-label="Close"></button>
+        </div>
+      </div>
+      <div class="window-body">
+        <h2>cv.exe</h2>
+        <p><strong>Rafly Arrasyid</strong></p>
+        <p>Sistem Informasi — Universitas Gunadarma</p>
+        <div class="info-grid">
+          <strong>Telepon</strong><span>085774170708</span>
+          <strong>Email</strong><span>rasyidrafly88@gmail.com</span>
+          <strong>Asal</strong><span>Jakarta Barat</span>
+          <strong>Project</strong><span>Website Pembookingan Lapangan Padel</span>
+        </div>
+        <button class="download-cv" id="downloadCv">Download CV</button>
+      </div>
+      <span class="resize-corner" aria-hidden="true"></span>
+    </section>
+
+    <div class="start-menu" id="startMenu">
+      <h3>Start Menu</h3>
+      <button class="menu-app" data-app="about">👤 about.exe</button>
+      <button class="menu-app" data-app="experience">💼 experience.exe</button>
+      <button class="menu-app" data-app="skills">⚡ skills.exe</button>
+      <button class="menu-app" data-app="project">🚀 project.exe</button>
+      <button class="menu-app" data-app="education">🎓 education.exe</button>
+      <button class="menu-app" data-app="contact">📧 contact.exe</button>
+      <button class="menu-app" data-app="terminal">⌨️ terminal.exe</button>
+      <button class="menu-app" data-app="cv">📄 cv.exe</button>
+    </div>
+
+    <footer class="taskbar">
+      <div class="os-brand"><span class="avatar">RA</span><span>Rafly OS</span></div>
+      <div class="task-tabs" id="taskTabs"></div>
+      <div class="clock" id="clock">00:00:00</div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">☾</button>
+      <button class="start" id="startButton">Start</button>
+    </footer>
+    <div class="mobile-app-label" id="mobileAppLabel"></div>
+  </div>
+
+  <script>
+    const apps = {
+      about: { title: "about.exe", icon: "👤" },
+      experience: { title: "experience.exe", icon: "💼" },
+      skills: { title: "skills.exe", icon: "⚡" },
+      project: { title: "project.exe", icon: "🚀" },
+      education: { title: "education.exe", icon: "🎓" },
+      contact: { title: "contact.exe", icon: "📧" },
+      terminal: { title: "terminal.exe", icon: "⌨️" },
+      cv: { title: "cv.exe", icon: "📄" }
+    };
+
+    const boot = document.getElementById("boot");
+    const desktop = document.getElementById("desktop");
+    const taskTabs = document.getElementById("taskTabs");
+    const startButton = document.getElementById("startButton");
+    const themeToggle = document.getElementById("themeToggle");
+    const mobileAppLabel = document.getElementById("mobileAppLabel");
+    const startMenu = document.getElementById("startMenu");
+    const clock = document.getElementById("clock");
+    const windows = [...document.querySelectorAll(".window")];
+    let zIndex = 20;
+    let activeApp = null;
+    const openedApps = new Set();
+    const minimizedApps = new Set();
+    const dragState = { active: false, win: null, x: 0, y: 0, left: 0, top: 0 };
+    const terminalOutput = document.getElementById("terminalOutput");
+    const terminalForm = document.getElementById("terminalForm");
+    const terminalInput = document.getElementById("terminalInput");
+    const downloadCv = document.getElementById("downloadCv");
+
+    windows.forEach((win) => {
+      if (!win.querySelector(".resize-corner")) {
+        const corner = document.createElement("span");
+        corner.className = "resize-corner";
+        corner.setAttribute("aria-hidden", "true");
+        win.appendChild(corner);
+      }
+    });
+
+    setTimeout(() => {
+      boot.classList.add("hidden");
+      if (window.innerWidth >= 900) openApp("about");
+    }, 2100);
+
+    function updateClock() {
+      const now = new Date();
+      const time = new Intl.DateTimeFormat("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).format(now);
+      clock.textContent = time.replace(/\./g, ":");
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function getWindow(app) {
+      return document.querySelector(`.window[data-app="${app}"]`);
+    }
+
+    function focusWindow(win) {
+      zIndex += 1;
+      win.style.zIndex = zIndex;
+      activeApp = win.dataset.app;
+      renderTaskTabs();
+      updateDesktopIndicators();
+      updateMobileAppLabel();
+    }
+
+    function openApp(app) {
+      const win = getWindow(app);
+      openedApps.add(app);
+      minimizedApps.delete(app);
+      win.classList.add("open");
+      win.classList.remove("minimized");
+      focusWindow(win);
+      startMenu.classList.remove("open");
+      updateDesktopIndicators();
+      updateMobileAppLabel();
+      if (app === "terminal") setTimeout(() => terminalInput.focus(), 80);
+    }
+
+    function closeApp(app) {
+      const win = getWindow(app);
+      win.classList.remove("open", "minimized", "maximized");
+      openedApps.delete(app);
+      minimizedApps.delete(app);
+      if (activeApp === app) activeApp = [...openedApps].at(-1) || null;
+      renderTaskTabs();
+      updateDesktopIndicators();
+      updateMobileAppLabel();
+    }
+
+    function minimizeApp(app) {
+      const win = getWindow(app);
+      win.classList.add("minimized");
+      minimizedApps.add(app);
+      if (activeApp === app) activeApp = null;
+      renderTaskTabs();
+      updateDesktopIndicators();
+      updateMobileAppLabel();
+    }
+
+    function toggleMaximize(app) {
+      const win = getWindow(app);
+      win.classList.toggle("maximized");
+      focusWindow(win);
+    }
+
+    function restoreApp(app) {
+      const win = getWindow(app);
+      minimizedApps.delete(app);
+      win.classList.remove("minimized");
+      win.classList.add("open");
+      focusWindow(win);
+    }
+
+    function renderTaskTabs() {
+      taskTabs.innerHTML = "";
+      openedApps.forEach((app) => {
+        const button = document.createElement("button");
+        button.className = `task-tab ${activeApp === app && !minimizedApps.has(app) ? "active" : ""}`;
+        button.innerHTML = `<span class="task-icon">${apps[app].icon}</span><span class="task-name">${apps[app].title}</span>`;
+        button.title = apps[app].title;
+        button.addEventListener("click", () => {
+          pulseElement(button);
+          if (minimizedApps.has(app) || activeApp !== app) {
+            restoreApp(app);
+          } else {
+            minimizeApp(app);
+          }
+        });
+        taskTabs.appendChild(button);
+      });
+    }
+
+    function updateDesktopIndicators() {
+      document.querySelectorAll(".desktop-icon").forEach((icon) => {
+        icon.classList.toggle("running", openedApps.has(icon.dataset.app));
+      });
+    }
+
+    function updateMobileAppLabel() {
+      if (!activeApp || minimizedApps.has(activeApp)) {
+        mobileAppLabel.classList.remove("visible");
+        mobileAppLabel.textContent = "";
+        return;
+      }
+      mobileAppLabel.textContent = `${apps[activeApp].icon} ${apps[activeApp].title}`;
+      mobileAppLabel.classList.toggle("visible", isMobileWidth());
+    }
+
+    function backFromMobile(app) {
+      if (isMobileWidth()) {
+        minimizeApp(app);
+      } else {
+        closeApp(app);
+      }
+    }
+
+    function pulseElement(element) {
+      element.classList.remove("clicked");
+      void element.offsetWidth;
+      element.classList.add("clicked");
+      setTimeout(() => element.classList.remove("clicked"), 240);
+    }
+
+    function cycleApps() {
+      const visibleApps = [...openedApps].filter((app) => !minimizedApps.has(app));
+      if (!visibleApps.length) return;
+      const currentIndex = visibleApps.indexOf(activeApp);
+      const nextApp = visibleApps[(Math.max(0, currentIndex) + 1) % visibleApps.length];
+      restoreApp(nextApp);
+    }
+
+    function appendTerminal(text) {
+      terminalOutput.textContent += `\n${text}`;
+      terminalOutput.scrollTop = terminalOutput.scrollHeight;
+    }
+
+    function runTerminalCommand(rawCommand) {
+      const command = rawCommand.trim().toLowerCase();
+      if (!command) return;
+      appendTerminal(`\nrafly@os:~$ ${rawCommand}`);
+
+      const responses = {
+        help: "Commands: help, about, skills, project, education, contact, cv, clear",
+        about: "Rafly Arrasyid - Mahasiswa Sistem Informasi Universitas Gunadarma, lulusan Administrasi Perkantoran SMKN 15 Jakarta.",
+        skills: "Microsoft Office | Teliti | Kerjasama Tim | Manajemen Waktu",
+        project: "Website Pembookingan Lapangan Padel - informasi lapangan, pemilihan jadwal, dan alur booking.",
+        education: "2024-Sekarang: Universitas Gunadarma, Sistem Informasi\n2021-2024: SMK Negeri 15 Jakarta, Administrasi Perkantoran",
+        contact: "Telepon: 085774170708\nEmail: rasyidrafly88@gmail.com",
+        cv: "Buka cv.exe untuk melihat ringkasan CV dan tombol download."
+      };
+
+      if (command === "clear") {
+        terminalOutput.textContent = "Rafly OS Terminal";
+        return;
+      }
+
+      appendTerminal(responses[command] || `Command tidak dikenal: ${rawCommand}. Ketik "help".`);
+    }
+
+    function isMobileWidth() {
+      return window.innerWidth < 900;
+    }
+
+    function startDrag(event, win) {
+      if (win.classList.contains("maximized")) return;
+      dragState.active = true;
+      dragState.win = win;
+      dragState.x = event.clientX;
+      dragState.y = event.clientY;
+      dragState.left = win.offsetLeft;
+      dragState.top = win.offsetTop;
+      focusWindow(win);
+      if (event.currentTarget.setPointerCapture && event.pointerId !== undefined) {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      }
+    }
+
+    function moveDrag(event) {
+      if (!dragState.active || !dragState.win) return;
+      const nextLeft = dragState.left + event.clientX - dragState.x;
+      const nextTop = dragState.top + event.clientY - dragState.y;
+      const maxLeft = window.innerWidth - dragState.win.offsetWidth - 8;
+      const maxTop = window.innerHeight - dragState.win.offsetHeight - 58;
+      dragState.win.style.left = `${Math.max(8, Math.min(nextLeft, maxLeft))}px`;
+      dragState.win.style.top = `${Math.max(8, Math.min(nextTop, maxTop))}px`;
+    }
+
+    function stopDrag(event) {
+      if (dragState.active && dragState.win && isMobileWidth()) {
+        const deltaY = event ? event.clientY - dragState.y : 0;
+        if (deltaY > 90) minimizeApp(dragState.win.dataset.app);
+      }
+      if (event && event.currentTarget && event.currentTarget.releasePointerCapture && event.pointerId !== undefined) {
+        try {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        } catch (error) {}
+      }
+      dragState.active = false;
+      dragState.win = null;
+    }
+
+    const iconClicks = new Map();
+
+    document.querySelectorAll("[data-app]").forEach((element) => {
+      if (element.classList.contains("window")) return;
+      element.addEventListener("dblclick", () => openApp(element.dataset.app));
+      element.addEventListener("click", (event) => {
+        pulseElement(element);
+        if (element.classList.contains("menu-app")) openApp(element.dataset.app);
+        if (element.classList.contains("desktop-icon")) {
+          if (isMobileWidth()) {
+            openApp(element.dataset.app);
+            event.stopPropagation();
+            return;
+          }
+          const now = Date.now();
+          const lastClick = iconClicks.get(element.dataset.app) || 0;
+          iconClicks.set(element.dataset.app, now);
+          if (now - lastClick < 430) openApp(element.dataset.app);
+        }
+        event.stopPropagation();
+      });
+      element.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openApp(element.dataset.app);
+        }
+      });
+    });
+
+    windows.forEach((win) => {
+      win.addEventListener("mousedown", () => focusWindow(win));
+
+      const titlebar = win.querySelector(".titlebar");
+      titlebar.addEventListener("pointerdown", (event) => {
+        if (event.target.closest(".control")) return;
+        startDrag(event, win);
+      });
+      titlebar.addEventListener("pointermove", moveDrag);
+      titlebar.addEventListener("pointerup", stopDrag);
+      titlebar.addEventListener("pointercancel", stopDrag);
+
+      win.querySelectorAll(".control, .mobile-back").forEach((button) => {
+        button.addEventListener("click", (event) => {
+          event.stopPropagation();
+          pulseElement(button);
+          const app = win.dataset.app;
+          const action = button.dataset.action;
+          if (button.classList.contains("mobile-back")) {
+            backFromMobile(app);
+            return;
+          }
+          if (action === "close") closeApp(app);
+          if (action === "minimize") minimizeApp(app);
+          if (action === "maximize") toggleMaximize(app);
+        });
+      });
+    });
+
+    document.addEventListener("pointermove", moveDrag);
+    document.addEventListener("pointerup", stopDrag);
+
+    startButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      pulseElement(startButton);
+      startMenu.classList.toggle("open");
+    });
+
+    themeToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      pulseElement(themeToggle);
+      document.body.classList.toggle("light-theme");
+      themeToggle.textContent = document.body.classList.contains("light-theme") ? "☀" : "☾";
+    });
+
+    desktop.addEventListener("click", () => {
+      startMenu.classList.remove("open");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.altKey && event.key === "Tab") {
+        event.preventDefault();
+        cycleApps();
+        return;
+      }
+
+      if (event.ctrlKey && event.key.toLowerCase() === "w" && activeApp) {
+        event.preventDefault();
+        closeApp(activeApp);
+        return;
+      }
+
+      if ((event.ctrlKey || event.metaKey) && event.key === " ") {
+        event.preventDefault();
+        startMenu.classList.toggle("open");
+        return;
+      }
+
+      if (event.key === "Escape") {
+        if (startMenu.classList.contains("open")) {
+          startMenu.classList.remove("open");
+          return;
+        }
+        if (activeApp) closeApp(activeApp);
+      }
+    });
+
+    terminalForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runTerminalCommand(terminalInput.value);
+      terminalInput.value = "";
+    });
+
+    terminalInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      runTerminalCommand(terminalInput.value);
+      terminalInput.value = "";
+    });
+
+    downloadCv.addEventListener("click", () => {
+      const cvText = `Rafly Arrasyid
+Sistem Informasi - Universitas Gunadarma
+
+Kontak
+Telepon: 085774170708
+Email: rasyidrafly88@gmail.com
+Asal: Jakarta Barat
+Lahir: Jakarta, 23 Juli 2005
+Alamat: Jl. FF, Kampung Baru, Kebon Jeruk, Sukabumi Selatan, Jakarta Barat
+
+Tentang Saya
+Lulusan SMK Negeri 15 Jakarta jurusan Administrasi Perkantoran dan saat ini sedang menempuh pendidikan di Universitas Gunadarma Program Studi Sistem Informasi. Memiliki dasar administrasi perkantoran dan mulai mendalami teknologi informasi.
+
+Pendidikan
+2024-Sekarang | Universitas Gunadarma | Sistem Informasi
+2021-2024 | SMK Negeri 15 Jakarta | Administrasi Perkantoran
+
+Pengalaman
+Praktik Kerja Lapangan | Mandiri Digital Universe
+- Menulis teks naskah untuk konten media digital Spotify
+- Membuat presentasi hasil kerja mingguan
+
+Tugas Sekolah | SMKN 15 Jakarta
+- Menjadi resepsionis
+- Melayani administrasi dan operasional koperasi sekolah
+- Melakukan stock opname dan pencatatan inventaris koperasi
+
+Kemampuan
+Microsoft Office | Teliti | Kerjasama Tim | Manajemen Waktu
+
+Project
+Website Pembookingan Lapangan Padel`;
+      const blob = new Blob([cvText], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "CV-Rafly-Arrasyid.txt";
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+
+    window.addEventListener("resize", () => {
+      updateMobileAppLabel();
+      windows.forEach((win) => {
+        if (!win.classList.contains("open") || win.classList.contains("maximized")) return;
+        const maxLeft = window.innerWidth - win.offsetWidth - 8;
+        const maxTop = window.innerHeight - win.offsetHeight - 58;
+        win.style.left = `${Math.max(8, Math.min(win.offsetLeft, maxLeft))}px`;
+        win.style.top = `${Math.max(8, Math.min(win.offsetTop, maxTop))}px`;
+      });
+    });
+  </script>
+</body>
+</html>
