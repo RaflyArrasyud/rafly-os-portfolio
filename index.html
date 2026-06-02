@@ -1454,7 +1454,7 @@ available: help, about, skills, project, education, contact, clear</div>
 
     setTimeout(() => {
       boot.classList.add("hidden");
-      openApp("about");
+      if (window.innerWidth >= 900) openApp("about");
     }, 2100);
 
     function updateClock() {
