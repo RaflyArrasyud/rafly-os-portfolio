@@ -215,6 +215,11 @@
       animation: clickPulse 0.22s ease;
     }
 
+    .desktop-icon.selected {
+      border-color: rgba(105, 215, 255, 0.42);
+      background: rgba(105, 215, 255, 0.14);
+    }
+
     @keyframes clickPulse {
       0% { transform: scale(1); }
       50% { transform: scale(0.94); }
@@ -959,15 +964,25 @@
 
       .window,
       .window.maximized {
+        position: fixed;
         left: 8px !important;
-        top: 414px !important;
+        top: 8px !important;
         min-width: 0;
         width: calc(100vw - 16px) !important;
-        height: 420px !important;
+        height: calc(100vh - 76px) !important;
         min-height: 300px;
         border-radius: 14px;
         resize: none;
         animation: mobileSlideUp 0.22s ease both;
+      }
+
+      .window.open::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: rgba(0, 0, 0, 0.38);
+        backdrop-filter: blur(8px);
       }
 
       .window.minimized {
@@ -1438,6 +1453,7 @@ available: help, about, skills, project, education, contact, clear</div>
     const openedApps = new Set();
     const minimizedApps = new Set();
     const dragState = { active: false, win: null, x: 0, y: 0, left: 0, top: 0 };
+    let audioContext = null;
     const terminalOutput = document.getElementById("terminalOutput");
     const terminalForm = document.getElementById("terminalForm");
     const terminalInput = document.getElementById("terminalInput");
@@ -1540,7 +1556,7 @@ available: help, about, skills, project, education, contact, clear</div>
         button.innerHTML = `<span class="task-icon">${apps[app].icon}</span><span class="task-name">${apps[app].title}</span>`;
         button.title = apps[app].title;
         button.addEventListener("click", () => {
-          pulseElement(button);
+          feedback(button);
           if (minimizedApps.has(app) || activeApp !== app) {
             restoreApp(app);
           } else {
@@ -1568,11 +1584,7 @@ available: help, about, skills, project, education, contact, clear</div>
     }
 
     function backFromMobile(app) {
-      if (isMobileWidth()) {
-        minimizeApp(app);
-      } else {
-        closeApp(app);
-      }
+      closeApp(app);
     }
 
     function pulseElement(element) {
@@ -1580,6 +1592,29 @@ available: help, about, skills, project, education, contact, clear</div>
       void element.offsetWidth;
       element.classList.add("clicked");
       setTimeout(() => element.classList.remove("clicked"), 240);
+    }
+
+    function playClickSound() {
+      try {
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(520, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(760, audioContext.currentTime + 0.055);
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.06, audioContext.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.12);
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.13);
+      } catch (error) {}
+    }
+
+    function feedback(element) {
+      pulseElement(element);
+      playClickSound();
     }
 
     function goHome() {
@@ -1680,11 +1715,19 @@ available: help, about, skills, project, education, contact, clear</div>
       if (element.classList.contains("window")) return;
       element.addEventListener("dblclick", () => openApp(element.dataset.app));
       element.addEventListener("click", (event) => {
-        pulseElement(element);
+        feedback(element);
         if (element.classList.contains("menu-app")) openApp(element.dataset.app);
         if (element.classList.contains("desktop-icon")) {
           if (isMobileWidth()) {
-            openApp(element.dataset.app);
+            const now = Date.now();
+            const lastClick = iconClicks.get(element.dataset.app) || 0;
+            document.querySelectorAll(".desktop-icon").forEach((icon) => icon.classList.remove("selected"));
+            element.classList.add("selected");
+            iconClicks.set(element.dataset.app, now);
+            if (now - lastClick < 520) {
+              element.classList.remove("selected");
+              openApp(element.dataset.app);
+            }
             event.stopPropagation();
             return;
           }
@@ -1737,19 +1780,19 @@ available: help, about, skills, project, education, contact, clear</div>
 
     startButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      pulseElement(startButton);
+      feedback(startButton);
       startMenu.classList.toggle("open");
     });
 
     homeMenu.addEventListener("click", (event) => {
       event.stopPropagation();
-      pulseElement(homeMenu);
+      feedback(homeMenu);
       goHome();
     });
 
     themeToggle.addEventListener("click", (event) => {
       event.stopPropagation();
-      pulseElement(themeToggle);
+      feedback(themeToggle);
       document.body.classList.toggle("light-theme");
       themeToggle.textContent = document.body.classList.contains("light-theme") ? "☀" : "☾";
     });
