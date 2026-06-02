@@ -804,6 +804,17 @@
       font-weight: 900;
     }
 
+    .music-toggle {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
     .mobile-app-label {
       display: none;
       position: fixed;
@@ -1005,7 +1016,7 @@
         left: 8px;
         right: 8px;
         bottom: 8px;
-        grid-template-columns: auto minmax(0, 1fr) auto auto;
+        grid-template-columns: auto minmax(0, 1fr) auto auto auto;
         height: 50px;
         padding: 6px;
       }
@@ -1420,6 +1431,7 @@ available: help, about, skills, project, education, contact, clear</div>
       <div class="os-brand"><span class="avatar">RA</span><span>Rafly OS</span></div>
       <div class="task-tabs" id="taskTabs"></div>
       <div class="clock" id="clock">00:00:00</div>
+      <button class="music-toggle" id="musicToggle" aria-label="Musik">♪</button>
       <button class="theme-toggle" id="themeToggle" aria-label="Ganti tema">☾</button>
       <button class="start" id="startButton">Start</button>
     </footer>
@@ -1443,6 +1455,7 @@ available: help, about, skills, project, education, contact, clear</div>
     const taskTabs = document.getElementById("taskTabs");
     const startButton = document.getElementById("startButton");
     const themeToggle = document.getElementById("themeToggle");
+    const musicToggle = document.getElementById("musicToggle");
     const mobileAppLabel = document.getElementById("mobileAppLabel");
     const homeMenu = document.getElementById("homeMenu");
     const startMenu = document.getElementById("startMenu");
@@ -1454,6 +1467,11 @@ available: help, about, skills, project, education, contact, clear</div>
     const minimizedApps = new Set();
     const dragState = { active: false, win: null, x: 0, y: 0, left: 0, top: 0 };
     let audioContext = null;
+    let musicGain = null;
+    let musicTimer = null;
+    let musicEnabled = true;
+    let musicStarted = false;
+    let musicConnected = false;
     const terminalOutput = document.getElementById("terminalOutput");
     const terminalForm = document.getElementById("terminalForm");
     const terminalInput = document.getElementById("terminalInput");
@@ -1612,9 +1630,62 @@ available: help, about, skills, project, education, contact, clear</div>
       } catch (error) {}
     }
 
+    function ensureAudioContext() {
+      audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    }
+
+    function playMusicNote(frequency, startTime, duration) {
+      const ctx = ensureAudioContext();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, startTime);
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.035, startTime + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      oscillator.connect(gain);
+      gain.connect(musicGain);
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration + 0.04);
+    }
+
+    function scheduleMusicLoop() {
+      if (!musicEnabled || !musicStarted) return;
+      const ctx = ensureAudioContext();
+      const now = ctx.currentTime;
+      const notes = [261.63, 329.63, 392.0, 493.88];
+      notes.forEach((note, index) => playMusicNote(note, now + index * 0.42, 0.72));
+      musicTimer = setTimeout(scheduleMusicLoop, 1900);
+    }
+
+    function startBackgroundMusic() {
+      if (!musicEnabled || musicStarted) return;
+      const ctx = ensureAudioContext();
+      musicGain = musicGain || ctx.createGain();
+      musicGain.gain.value = 0.28;
+      if (!musicConnected) {
+        musicGain.connect(ctx.destination);
+        musicConnected = true;
+      }
+      musicStarted = true;
+      musicToggle.textContent = "♫";
+      scheduleMusicLoop();
+    }
+
+    function stopBackgroundMusic() {
+      musicStarted = false;
+      clearTimeout(musicTimer);
+      musicTimer = null;
+      if (musicGain) musicGain.gain.setValueAtTime(0.0001, ensureAudioContext().currentTime);
+      musicToggle.textContent = "♪";
+    }
+
     function feedback(element) {
       pulseElement(element);
       playClickSound();
+      startBackgroundMusic();
     }
 
     function goHome() {
@@ -1795,6 +1866,21 @@ available: help, about, skills, project, education, contact, clear</div>
       feedback(themeToggle);
       document.body.classList.toggle("light-theme");
       themeToggle.textContent = document.body.classList.contains("light-theme") ? "☀" : "☾";
+    });
+
+    musicToggle.addEventListener("click", (event) => {
+      event.stopPropagation();
+      pulseElement(musicToggle);
+      if (!musicStarted && musicEnabled) {
+        startBackgroundMusic();
+        return;
+      }
+      musicEnabled = !musicEnabled;
+      if (musicEnabled) {
+        startBackgroundMusic();
+      } else {
+        stopBackgroundMusic();
+      }
     });
 
     desktop.addEventListener("click", () => {
