@@ -876,22 +876,26 @@
 
     @media (max-width: 1023px) {
       .desktop {
+        display: flex;
+        flex-direction: column;
         overflow-y: auto;
         padding-bottom: 82px;
       }
 
       .desktop-icons {
         position: relative;
+        order: 2;
         top: auto;
         left: auto;
         width: min(100% - 24px, 430px);
-        margin: 16px auto 0;
+        margin: 12px auto 0;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
       }
 
       .welcome-card {
         position: relative;
+        order: 1;
         right: auto;
         top: auto;
         display: grid;
